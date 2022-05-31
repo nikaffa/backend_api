@@ -62,7 +62,22 @@ const postsRoutes = (app) => {
       });
 
     //2. All the further logic with returned data
-    allDataFetched.then(alldata => console.log('allDataReturned', alldata));
+    allDataFetched.then(alldata => {
+      //Removing duplicates with hash
+      let dataHash = {};
+      alldata[0].forEach(post => {
+        dataHash[post.id] = post;
+      });
+      for (let i = 1; i < alldata.length; i++) {
+        alldata[i].forEach(post => {
+          if (!dataHash[post.id]) {
+            dataHash[post.id] = post;
+          }
+        });
+      }
+      // console.log('dataHash', Object.keys(dataHash).length);
+
+    });
 
     // //If only one tag is specified
     // axios.get(`https://app.hatchways.io/api/assessment/blog/posts?tag=${tags}&sortBy=${sortBy}&direction=${direction}`)
