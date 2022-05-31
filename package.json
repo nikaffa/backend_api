@@ -2,9 +2,10 @@
   "name": "blogposts_backend_challenge",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "node src/app.js"
   },
   "repository": {
     "type": "git",
