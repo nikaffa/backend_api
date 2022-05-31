@@ -7,9 +7,16 @@ const postsRoutes = (app) => {
 
   // GET all posts
   app.get('/:tags/:sortBy?/:direction?', (req, res) => {
-    axios.get(`https://app.hatchways.io/api/assessment/blog/posts?tag=tech`)
-      .then(data => {
-        res.status(200).send({ 'posts': data.data.posts });
+    const { tags } = req.params;
+
+    axios.get(`https://app.hatchways.io/api/assessment/blog/posts?tag=${tags}`)
+      .then(response => {
+        let data = response.data.posts;
+        if (data.length) {
+          res.status(200).send({ 'posts': data });
+        } else {
+          res.status(400).send({ 'error': 'Tags parameter is required' });
+        }
       })
       .catch(err => {
         console.error('error', err.message);
