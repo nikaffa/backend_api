@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const { getDataSorted } = require('../src/helpers');
+const { getData, getDataSorted } = require('../src/helpers');
 
 const postsRoutes = (app) => {
 
@@ -24,21 +24,7 @@ const postsRoutes = (app) => {
       return res.status(400).send({ error: 'sortBy parameter is invalid' });
     }
 
-    //Fetching data
-    const getTag = (tag) => {
-      return axios.get(`https://app.hatchways.io/api/assessment/blog/posts?tag=${tag}&sortBy=${sortBy}&direction=${direction}`)
-        .then(response => {
-          let data = response.data.posts;
-          if (data.length) {
-            return data;
-          } else {
-            console.log('error');
-          }
-        })
-        .catch(err => {
-          console.error(err.message);
-        });
-    };
+  
 
     //If only one tag is specified
     if (!tags.includes(',')) {
@@ -47,7 +33,7 @@ const postsRoutes = (app) => {
         .then(response => {
           let data = response.data.posts;
           if (data.length) {
-            getDataSorted(data);
+            getDataSorted(data, sortBy, direction);
             res.status(200).send({ 'posts': data });
           }
         })
@@ -61,8 +47,8 @@ const postsRoutes = (app) => {
 
       //1. Fetching all unsorted posts async
       const promises = [
-        getTag(arrayOfTags[0]),
-        getTag(arrayOfTags[1]),
+        getData(arrayOfTags[0], sortBy, direction),
+        getData(arrayOfTags[1], sortBy, direction),
       ];
 
       // arrayOfTags.map((tag) => {
@@ -99,7 +85,7 @@ const postsRoutes = (app) => {
         }
 
         //4.Sorting posts
-        getDataSorted(dataDuplicatesRemoved);
+        getDataSorted(dataDuplicatesRemoved, sortBy, direction);
         res.status(200).send({ 'posts': dataDuplicatesRemoved });
       })
         .catch(err => {
