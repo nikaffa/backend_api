@@ -19,10 +19,8 @@ const postsRoutes = (app) => {
     if (direction && !directionValidValues.includes(direction)) {
       return res.status(400).send({ error: 'sortBy parameter is invalid' });
     }
-    console.log(tags, sortBy, direction);
 
     //If more than one tag specified
-
     //Fetching data
     const getTag = (tag) => {
       return axios.get(`https://app.hatchways.io/api/assessment/blog/posts?tag=${tag}&sortBy=${sortBy}&direction=${direction}`)
@@ -61,9 +59,9 @@ const postsRoutes = (app) => {
         console.log(err.message);
       });
 
-    //2. All the further logic with returned data
+    //All the further logic with returned data
     allDataFetched.then(alldata => {
-      //Removing duplicates with hash
+      //2.Removing duplicates with hash
       let dataHash = {};
       alldata[0].forEach(post => {
         dataHash[post.id] = post;
@@ -75,9 +73,26 @@ const postsRoutes = (app) => {
           }
         });
       }
-      // console.log('dataHash', Object.keys(dataHash).length);
 
-    });
+      //3.Converting hash to array
+      let dataDuplicatesRemoved = [];
+      for (let postId in dataHash) {
+        dataDuplicatesRemoved.push(dataHash[postId]);
+      }
+
+      //4.Sorting posts
+      if (sortBy) {
+        if (direction && direction === 'desc') {
+          dataDuplicatesRemoved = dataDuplicatesRemoved.sort((a, b) => (b[sortBy] > a[sortBy]) ? 1 : -1);
+        } else if (direction && direction === 'asc' || !direction) {
+          dataDuplicatesRemoved = dataDuplicatesRemoved.sort((a, b) => (b[sortBy] < a[sortBy]) ? 1 : -1);
+        }
+        res.status(200).send({ 'posts': dataDuplicatesRemoved });
+      }
+    })
+      .catch(err => {
+        console.error(err.message);
+      });
 
     // //If only one tag is specified
     // axios.get(`https://app.hatchways.io/api/assessment/blog/posts?tag=${tags}&sortBy=${sortBy}&direction=${direction}`)
