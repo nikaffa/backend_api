@@ -1,7 +1,7 @@
 const appRouter = (app) => {
-
-  app.get('/', (req, res) => {
-    res.send('Welcome to my blogpost app!');
+  //Step1 route
+  app.get('/api/ping', (req, res) => {
+    res.status(200).send({ "success":true });
   });
   
 };
