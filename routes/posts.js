@@ -21,14 +21,16 @@ const postsRoutes = (app) => {
     }
     console.log(tags, sortBy, direction);
 
-    //If more tags specified
+    //If more than one tag specified
+
+    //Fetching data
     const getTag = (tag) => {
-      axios.get(`https://app.hatchways.io/api/assessment/blog/posts?tag=${tag}&sortBy=${sortBy}&direction=${direction}`)
+      return axios.get(`https://app.hatchways.io/api/assessment/blog/posts?tag=${tag}&sortBy=${sortBy}&direction=${direction}`)
         .then(response => {
           let data = response.data.posts;
           if (data.length) {
             // return res.status(200).send({ 'posts': data });
-            console.log('data', data);
+            return data;
           } else {
             // return res.status(404).send({ 'error': 'Tags parameter is required' });
             console.log('error');
@@ -41,9 +43,26 @@ const postsRoutes = (app) => {
 
     let arrayOfTags = tags.split(',');
 
-    arrayOfTags.map((tag) => {
-      getTag(tag);
-    });
+    //1. Fetching all unsorted posts async
+    const promises = [
+      getTag(arrayOfTags[0]),
+      getTag(arrayOfTags[1]),
+    ];
+
+    // arrayOfTags.map((tag) => {
+    //   promises.push(getTag(tag));
+    // });
+
+    const allDataFetched = Promise.all(promises)
+      .then((all) => {
+        return all;
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+
+    //2. All the further logic with returned data
+    allDataFetched.then(alldata => console.log('allDataReturned', alldata));
 
     // //If only one tag is specified
     // axios.get(`https://app.hatchways.io/api/assessment/blog/posts?tag=${tags}&sortBy=${sortBy}&direction=${direction}`)
