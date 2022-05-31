@@ -12,6 +12,9 @@ app.use(bodyParser.json());
 
 app.set('PORT', config.PORT);
 
+// Separating Routes
+const router = require("../routes/router")(app);
+
 app.listen(app.get('PORT'), () => {
   console.log(`Example app listening on port ${app.get('PORT')}`);
 });
