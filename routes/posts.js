@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const { getDataSorted } = require('../src/helpers');
 
 const postsRoutes = (app) => {
 
@@ -46,13 +47,7 @@ const postsRoutes = (app) => {
         .then(response => {
           let data = response.data.posts;
           if (data.length) {
-            if (sortBy) {
-              if (direction && direction === 'desc') {
-                data = data.sort((a, b) => (b[sortBy] > a[sortBy]) ? 1 : -1);
-              } else if (direction && direction === 'asc' || !direction) {
-                data = data.sort((a, b) => (b[sortBy] < a[sortBy]) ? 1 : -1);
-              }
-            }
+            getDataSorted(data);
             res.status(200).send({ 'posts': data });
           }
         })
@@ -104,14 +99,8 @@ const postsRoutes = (app) => {
         }
 
         //4.Sorting posts
-        if (sortBy) {
-          if (direction && direction === 'desc') {
-            dataDuplicatesRemoved = dataDuplicatesRemoved.sort((a, b) => (b[sortBy] > a[sortBy]) ? 1 : -1);
-          } else if (direction && direction === 'asc' || !direction) {
-            dataDuplicatesRemoved = dataDuplicatesRemoved.sort((a, b) => (b[sortBy] < a[sortBy]) ? 1 : -1);
-          }
-          res.status(200).send({ 'posts': dataDuplicatesRemoved });
-        }
+        getDataSorted(dataDuplicatesRemoved);
+        res.status(200).send({ 'posts': dataDuplicatesRemoved });
       })
         .catch(err => {
           console.error(err.message);
