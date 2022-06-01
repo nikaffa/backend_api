@@ -7,12 +7,10 @@ const getData = (tag, sortBy, direction) => {
       let data = response.data.posts;
       if (data.length) {
         return data;
-      } else {
-        console.log('error');
       }
     })
     .catch(err => {
-      console.error(err.message);
+      console.error('error4', err.message);
     });
 };
 
@@ -28,4 +26,22 @@ const getDataSorted = (data, sortBy, direction) => {
   return data;
 };
 
-module.exports = { getData, getDataSorted };
+//Helper for validating parameters
+const validateInputData = (tags, sortBy, direction) => {
+  const sortByValidValues = ['id', 'author', 'authorId', 'likes', 'popularity', 'reads', 'tags'];
+  const directionValidValues = ['asc', 'desc'];
+
+  //checking invalid input values
+  if (!tags) {
+    return { error: 'Tags parameter is required' };
+  }
+  if (sortBy && !sortByValidValues.includes(sortBy)) {
+    return { error: 'sortBy parameter is invalid' };
+  }
+  if (direction && !directionValidValues.includes(direction)) {
+    return { error: 'sortBy parameter is invalid' };
+  }
+  return;
+};
+
+module.exports = { getData, getDataSorted, validateInputData };

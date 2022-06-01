@@ -1,71 +1,52 @@
 //All routes for Posts are defined here
 const express = require('express');
 const router = express.Router();
-const axios = require('axios');
-const { getData, getDataSorted } = require('../src/helpers');
+const { getData, getDataSorted, validateInputData } = require('../src/helpers');
 
 const postsRoutes = (app) => {
 
   // GET all posts
-  app.get('/:tags/:sortBy?/:direction?', (req, res) => {
+  app.get('/api/posts/:tags?/:sortBy?/:direction?', (req, res) => {
     const { tags, sortBy,  direction } = req.params;
 
-    const sortByValidValues = ['id', 'author', 'authorId', 'likes', 'popularity', 'reads', 'tags'];
-    const directionValidValues = ['asc', 'desc'];
-
-    //checking invalid input values
-    if (!tags) {
-      return res.status(400).send({ 'error': 'Tags parameter is required' });
+    //Validating parameters
+    const validationError = validateInputData(tags, sortBy, direction);
+    if (validationError) {
+      return res.status(400).send(validationError);
     }
-    if (sortBy && !sortByValidValues.includes(sortBy)) {
-      return res.status(400).send({ error: 'sortBy parameter is invalid' });
-    }
-    if (direction && !directionValidValues.includes(direction)) {
-      return res.status(400).send({ error: 'sortBy parameter is invalid' });
-    }
-
-  
-
+    
     //If only one tag is specified
     if (!tags.includes(',')) {
-      console.log('One tag');
-      axios.get(`https://app.hatchways.io/api/assessment/blog/posts?tag=${tags}&sortBy=${sortBy}&direction=${direction}`)
-        .then(response => {
-          let data = response.data.posts;
-          if (data.length) {
-            getDataSorted(data, sortBy, direction);
-            res.status(200).send({ 'posts': data });
-          }
+      getData(tags, sortBy, direction)
+        .then((data) => {
+          getDataSorted(data, sortBy, direction);
+          res.status(200).send({ 'posts': data });
         })
         .catch(err => {
-          console.error(err);
+          console.log('error1', err.message);
         });
     } else {
     //If more than one tag specified
-      console.log('More tags');
+    
+      //1. Fetching all unsorted posts async-ly
       let arrayOfTags = tags.split(',');
+      let promises = [];
 
-      //1. Fetching all unsorted posts async
-      const promises = [
-        getData(arrayOfTags[0], sortBy, direction),
-        getData(arrayOfTags[1], sortBy, direction),
-      ];
-
-      // arrayOfTags.map((tag) => {
-      //   promises.push(getTag(tag));
-      // });
+      arrayOfTags.forEach((tag) => {
+        promises.push(getData(tag, sortBy, direction));
+      });
 
       const allDataFetched = Promise.all(promises)
         .then((all) => {
           return all;
         })
         .catch((err) => {
-          console.log(err.message);
+          console.log('error2', err.message);
         });
 
       //All the further logic with returned data
       allDataFetched.then(alldata => {
-        //2.Removing duplicates with hash
+        //2.Removing duplicates
         let dataHash = {};
         alldata[0].forEach(post => {
           dataHash[post.id] = post;
@@ -89,7 +70,7 @@ const postsRoutes = (app) => {
         res.status(200).send({ 'posts': dataDuplicatesRemoved });
       })
         .catch(err => {
-          console.error(err.message);
+          console.log('error3', err.message);
         });
     }
   });
