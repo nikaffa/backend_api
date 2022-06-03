@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1654283262608" clover="3.2.0">
-  <project timestamp="1654283262608" name="All files">
-    <metrics statements="76" coveredstatements="0" conditionals="33" coveredconditionals="0" methods="19" coveredmethods="0" elements="128" coveredelements="0" complexity="0" loc="76" ncloc="76" packages="2" files="5" classes="5"/>
+<coverage generated="1654289088350" clover="3.2.0">
+  <project timestamp="1654289088350" name="All files">
+    <metrics statements="78" coveredstatements="0" conditionals="33" coveredconditionals="0" methods="19" coveredmethods="0" elements="130" coveredelements="0" complexity="0" loc="78" ncloc="78" packages="2" files="5" classes="5"/>
     <package name="routes">
-      <metrics statements="39" coveredstatements="0" conditionals="4" coveredconditionals="0" methods="11" coveredmethods="0"/>
+      <metrics statements="41" coveredstatements="0" conditionals="4" coveredconditionals="0" methods="11" coveredmethods="0"/>
       <file name="posts.js" path="/Users/veronika/Lighthouse/blogposts_backend_challenge/routes/posts.js">
         <metrics statements="33" coveredstatements="0" conditionals="4" coveredconditionals="0" methods="9" coveredmethods="0"/>
         <line num="2" count="0" type="stmt"/>
@@ -41,13 +41,15 @@
         <line num="71" count="0" type="stmt"/>
       </file>
       <file name="router.js" path="/Users/veronika/Lighthouse/blogposts_backend_challenge/routes/router.js">
-        <metrics statements="6" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <metrics statements="8" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
+        <line num="2" count="0" type="stmt"/>
         <line num="4" count="0" type="stmt"/>
-        <line num="8" count="0" type="stmt"/>
-        <line num="9" count="0" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
         <line num="12" count="0" type="stmt"/>
-        <line num="16" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
       </file>
     </package>
     <package name="src">

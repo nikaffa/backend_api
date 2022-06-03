@@ -1,3 +1,6 @@
+const apicache = require('apicache');
+const cache = apicache.middleware;
+
 const appRouter = (app) => {
 
   //Grouping routes
@@ -5,11 +8,11 @@ const appRouter = (app) => {
   
   //Mounting resource routes
   //Step1 route
-  app.get('/api/ping', (req, res) => {
+  app.get('/api/ping', cache('500 minutes'), (req, res) => {
     res.status(200).send({ "success":true });
   });
   //Step2 route
-  app.get('/api/posts', postsRoutes(app));
+  app.get('/api/posts', cache('500 minutes'), postsRoutes(app));
   
 };
 

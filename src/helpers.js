@@ -18,9 +18,9 @@ const getData = (tag, sortBy, direction) => {
 const getDataSorted = (data, sortBy, direction) => {
   if (sortBy) {
     if (direction && direction === 'desc') {
-      data = data.sort((a, b) => (b[sortBy] > a[sortBy]) ? 1 : -1);
+      data = data.sort((a, b) => (b[sortBy] > a[sortBy]) ? 100 : - 100);
     } else if (direction && direction === 'asc' || !direction) {
-      data = data.sort((a, b) => (b[sortBy] < a[sortBy]) ? 1 : -1);
+      data = data.sort((a, b) => (b[sortBy] < a[sortBy]) ? 100 : - 100);
     }
   }
   return data;
