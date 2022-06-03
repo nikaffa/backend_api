@@ -36,41 +36,31 @@ const postsRoutes = (app) => {
         promises.push(getData(tag, sortBy, direction));
       });
 
-      const allDataFetched = Promise.all(promises)
-        .then((all) => {
-          return all;
-        })
-        .catch((err) => {
-          console.log('error2', err.message);
-        });
-
-      //All the further logic with returned data
-      allDataFetched.then(alldata => {
-        //2.Removing duplicates
-        let dataHash = {};
-        alldata[0].forEach(post => {
-          dataHash[post.id] = post;
-        });
-        for (let i = 1; i < alldata.length; i++) {
-          alldata[i].forEach(post => {
-            if (!dataHash[post.id]) {
-              dataHash[post.id] = post;
-            }
+      Promise.all(promises)
+        .then(alldata => {
+          //2.Removing duplicates
+          let dataHash = {};
+          alldata[0].forEach(post => {
+            dataHash[post.id] = post;
           });
-        }
+          for (let i = 1; i < alldata.length; i++) {
+            alldata[i].forEach(post => {
+              dataHash[post.id] = post;
+            });
+          }
 
-        //3.Converting hash to array
-        let dataDuplicatesRemoved = [];
-        for (let postId in dataHash) {
-          dataDuplicatesRemoved.push(dataHash[postId]);
-        }
+          //3.Converting hash to array
+          let dataDuplicatesRemoved = [];
+          for (let postId in dataHash) {
+            dataDuplicatesRemoved.push(dataHash[postId]);
+          }
 
-        //4.Sorting posts
-        getDataSorted(dataDuplicatesRemoved, sortBy, direction);
-        res.status(200).send({ 'posts': dataDuplicatesRemoved });
-      })
+          //4.Sorting posts
+          getDataSorted(dataDuplicatesRemoved, sortBy, direction);
+          res.status(200).send({ 'posts': dataDuplicatesRemoved });
+        })
         .catch(err => {
-          console.log('error3', err.message);
+          console.log('error2', err.message);
         });
     }
   });

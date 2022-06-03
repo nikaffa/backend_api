@@ -10,7 +10,7 @@ const getData = (tag, sortBy, direction) => {
       }
     })
     .catch(err => {
-      console.error('error4', err.message);
+      console.error('error3', err.message);
     });
 };
 

@@ -1,23 +1,33 @@
+process.env.NODE_ENV = "test";
 const expect = require('@jest/globals').expect;
 const axios = require('axios');
 
 describe("GET /api/ping (Step 1)", () => {
-  it("It should respond with status code 200", () => {
+ 
+  it("Should respond with status code 200", () => {
     return axios.get('http://localhost:8081/api/ping')
       .then(res => {
-        //console.log('res', res.status);
         expect(res.status).toBe(200);
+      })
+      .catch(err => {
+        console.error('error', err.message);
       });
+    
   });
-  it("It should respond with body { success: true }", () => {
+   
+  it("Should respond with body { success: true }", () => {
     return axios.get('http://localhost:8081/api/ping')
       .then(res => {
         expect(res.data).toEqual({ "success": true });
+      })
+      .catch(err => {
+        console.error('error', err.message);
       });
   });
 });
 
 describe("GET /api/posts (Step 2)", () => {
+  
   describe("Check StatusCode", () => {
     it("It should respond with status code 400 if `tags` parameter is not present", () => {
       return axios.get('http://localhost:8081/api/posts')
