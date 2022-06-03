@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/app.js",
   "scripts": {
-    "test": "jest --detectOpenHandles",
+    "test": "jest --coverage --colors",
     "start": "node src/app.js"
   },
   "repository": {
@@ -28,10 +28,27 @@
     "supertest": "^6.2.3"
   },
   "jest": {
+
+    "collectCoverageFrom": [
+      "<rootDir>/src/**",
+      "<rootDir>/routes/**",
+      "<rootDir>/__tests__/**",
+      "!<rootDir>/node_modules/"
+    ],
     "testEnvironment": "node",
+    "collectCoverage": true,
     "coveragePathIgnorePatterns": [
-      "/node_modules/",
-      "/.git/"
-    ]
+      "<rootDir>/node_modules/",
+      "<rootDir>/coverage"
+    ],
+    "coverageThreshold": {
+      "global": {
+      "branches": 50,
+      "functions": 50,
+      "lines": 50,
+      "statements": 50
+      }
+    },
+    "verbose": true
   }
 }
