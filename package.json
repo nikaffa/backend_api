@@ -2,10 +2,10 @@
   "name": "blogposts_backend_challenge",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.js",
+  "main": "src/server.js",
   "scripts": {
-    "test": "jest --coverage --colors",
-    "start": "node src/app.js"
+    "test": "jest --detectOpenHandles --coverage --colors",
+    "start": "node src/server.js"
   },
   "repository": {
     "type": "git",
@@ -30,16 +30,16 @@
   },
   "jest": {
     "collectCoverageFrom": [
-      "<rootDir>/src/**",
+      "<rootDir>/src/helpers.js",
       "<rootDir>/routes/**",
-      "<rootDir>/__tests__/**",
-      "!<rootDir>/node_modules/"
+      "!<rootDir>/node_modules/",
+      "!<rootDir>/coverage/"
     ],
     "testEnvironment": "node",
     "collectCoverage": true,
     "coveragePathIgnorePatterns": [
       "<rootDir>/node_modules/",
-      "<rootDir>/coverage"
+      "<rootDir>/coverage/"
     ],
     "coverageThreshold": {
       "global": {

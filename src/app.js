@@ -1,20 +1,17 @@
-// Web server config
-const config = require('./config');
-
-// Importing & defining the dependencies
 const express = require("express");
 const app = express();
-const bodyParser = require('body-parser');
-const axios = require('axios');
+const apicache = require('apicache');
+const cache = apicache.middleware;
 
-//app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+//Grouping routes
+const postsRoutes = require("../routes/posts");
 
-app.set('PORT', config.PORT);
-
-// Separating Routes
-const router = require("../routes/router")(app);
-
-app.listen(app.get('PORT'), () => {
-  console.log(`Example app listening on port ${app.get('PORT')}`);
+//Step1 route
+app.get('/api/ping', cache('5 minutes'), (req, res) => {
+  res.status(200).send({ "success":true });
 });
+//Step2 route
+app.get('/api/posts', cache('5 minutes'), postsRoutes(app));
+
+
+module.exports = app;
