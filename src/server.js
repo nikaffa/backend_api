@@ -10,5 +10,3 @@ app.set('PORT', config.PORT);
 app.listen(app.get('PORT'), () => {
   console.log(`Example app listening on port ${app.get('PORT')}`);
 });
-
-//module.exports = { srv };
