@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1654547901765" clover="3.2.0">
-  <project timestamp="1654547901765" name="All files">
-    <metrics statements="58" coveredstatements="12" conditionals="31" coveredconditionals="0" methods="16" coveredmethods="1" elements="105" coveredelements="13" complexity="0" loc="58" ncloc="58" packages="2" files="2" classes="2"/>
+<coverage generated="1654549205249" clover="3.2.0">
+  <project timestamp="1654549205249" name="All files">
+    <metrics statements="58" coveredstatements="24" conditionals="31" coveredconditionals="10" methods="16" coveredmethods="3" elements="105" coveredelements="37" complexity="0" loc="58" ncloc="58" packages="2" files="2" classes="2"/>
     <package name="routes">
-      <metrics statements="33" coveredstatements="7" conditionals="4" coveredconditionals="0" methods="9" coveredmethods="1"/>
+      <metrics statements="33" coveredstatements="11" conditionals="4" coveredconditionals="1" methods="9" coveredmethods="2"/>
       <file name="posts.js" path="/Users/veronika/Lighthouse/blogposts_backend_challenge/routes/posts.js">
-        <metrics statements="33" coveredstatements="7" conditionals="4" coveredconditionals="0" methods="9" coveredmethods="1"/>
+        <metrics statements="33" coveredstatements="11" conditionals="4" coveredconditionals="1" methods="9" coveredmethods="2"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
         <line num="4" count="1" type="stmt"/>
         <line num="6" count="1" type="stmt"/>
         <line num="9" count="1" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="14" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="15" count="0" type="stmt"/>
+        <line num="10" count="3" type="stmt"/>
+        <line num="13" count="3" type="stmt"/>
+        <line num="14" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="15" count="3" type="stmt"/>
         <line num="19" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="20" count="0" type="stmt"/>
         <line num="22" count="0" type="stmt"/>
@@ -42,9 +42,9 @@
       </file>
     </package>
     <package name="src">
-      <metrics statements="25" coveredstatements="5" conditionals="27" coveredconditionals="0" methods="7" coveredmethods="0"/>
+      <metrics statements="25" coveredstatements="13" conditionals="27" coveredconditionals="9" methods="7" coveredmethods="1"/>
       <file name="helpers.js" path="/Users/veronika/Lighthouse/blogposts_backend_challenge/src/helpers.js">
-        <metrics statements="25" coveredstatements="5" conditionals="27" coveredconditionals="0" methods="7" coveredmethods="0"/>
+        <metrics statements="25" coveredstatements="13" conditionals="27" coveredconditionals="9" methods="7" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="4" count="1" type="stmt"/>
         <line num="5" count="0" type="stmt"/>
@@ -60,14 +60,14 @@
         <line num="23" count="0" type="cond" truecount="0" falsecount="2"/>
         <line num="26" count="0" type="stmt"/>
         <line num="30" count="1" type="stmt"/>
-        <line num="31" count="0" type="stmt"/>
-        <line num="32" count="0" type="stmt"/>
-        <line num="35" count="0" type="cond" truecount="0" falsecount="2"/>
-        <line num="36" count="0" type="stmt"/>
-        <line num="38" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="39" count="0" type="stmt"/>
-        <line num="41" count="0" type="cond" truecount="0" falsecount="4"/>
-        <line num="42" count="0" type="stmt"/>
+        <line num="31" count="3" type="stmt"/>
+        <line num="32" count="3" type="stmt"/>
+        <line num="35" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="38" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="39" count="1" type="stmt"/>
+        <line num="41" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="42" count="1" type="stmt"/>
         <line num="44" count="0" type="stmt"/>
         <line num="47" count="1" type="stmt"/>
       </file>
