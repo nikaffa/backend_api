@@ -30,6 +30,7 @@ const postsRoutes = (app) => {
     
       //1. Fetching all unsorted posts async-ly
       let arrayOfTags = tags.split(',');
+      console.log(arrayOfTags)
       let promises = [];
 
       arrayOfTags.forEach((tag) => {

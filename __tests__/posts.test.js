@@ -6,7 +6,8 @@ const mock = new MockAdapter(axios);
 const { expect } = require("@jest/globals");
 
 const noCacheHeader = {"x-apicache-bypass": true};
-const apiUrl = "https://app.hatchways.io/api/assessment/blog/posts";
+//const apiUrl = "https://app.hatchways.io/api/assessment/blog/posts";
+let apiUrl = "https://api.hatchways.io/assessment/blog/posts";
 
 describe("All routes tests", () => {
 
@@ -49,43 +50,71 @@ describe("All routes tests", () => {
       });
 
       it("It should respond with status code 200 if one `tags` parameter is specified", () => {
-        mock.onGet(apiUrl + "?tag=health").reply(200, {posts: {"post1": "data1"}});
+        let apiCur = apiUrl.concat("?tag=health");
+        mock.onGet(apiCur).reply(200, {posts: {"post1": "data1"}});
+        console.log(apiCur);
         return request(app)
           .get('/api/posts/health')
           .set(noCacheHeader)
           .expect(200);
       });
-
-      // it("It should respond with status code 200 if two `tags` parameter are specified", (done) => {
-      //   return request(app)
-      //     .get('/api/posts/health,tech')
-      //     .expect(200).end(done);
-      // });
-      // it("It should respond with status code 200 if three `tags` parameter are specified", (done) => {
-      //   return request(app)
-      //     .get('/api/posts/health,tech,history')
-      //     .expect(200).end(done);
-      // });
-      // it("It should respond with status code 200 with one tag if a `sortBy` is specified and has a valid value", (done) => {
-      //   return request(app)
-      //     .get('/api/posts/health/likes')
-      //     .expect(200).end(done);
-      // });
-      // it("It should respond with status code 200 with two tags if a `sortBy` is specified and has a valid value", (done) => {
-      //   return request(app)
-      //     .get('/api/posts/health,tech/likes')
-      //     .expect(200).end(done);
-      // });
-      // it("It should respond with status code 200 with one tag if a `direction` is specified and has a valid value", (done) => {
-      //   return request(app)
-      //     .get('/api/posts/health/likes/desc')
-      //     .expect(200).end(done);
-      // });
-      // it("It should respond with status code 200 with two tags if a `direction` is specified and has a valid value", (done) => {
-      //   return request(app)
-      //     .get('/api/posts/health,tech/likes/desc')
-      //     .expect(200).end(done);
-      // });
+      it("It should respond with status code 200 with one tag if a `sortBy` is specified and has a valid value", () => {
+        let apiCur = apiUrl.concat("?tag=health&sortBy=likes");
+        mock.onGet(apiCur).reply(200, {"posts": [{"likes": 100},{"likes": 50}]});
+        console.log(apiCur);
+        return request(app)
+          .get('/api/posts/health/likes')
+          .set(noCacheHeader)
+          .expect(200);
+      });
+      it("It should respond with status code 200 with one tag if a `direction` is specified and has a valid value", () => {
+        let apiCur = apiUrl.concat("?tag=health&sortBy=likes&direction=desc");
+        mock.onGet(apiCur).reply(200, {"posts": [{"likes": 100},{"likes": 50}]});
+        console.log(apiCur);
+        return request(app)
+          .get('/api/posts/health/likes/desc')
+          .set(noCacheHeader)
+          .expect(200);
+      });
+      it("It should respond with status code 200 if two `tags` parameter are specified", () => {
+        let apiCur1 = apiUrl.concat("?tag=health");
+        let apiCur2 = apiUrl.concat("?tag=tech");
+        mock.onGet(apiCur1).reply(200, {"posts": [{"tags": ["health"]}]});
+        mock.onGet(apiCur2).reply(200, {"posts": [{"tags": ["tech"]}]});
+        return request(app)
+          .get('/api/posts/health,tech')
+          .expect(200);
+      });
+      it("It should respond with status code 200 with two tags if a `sortBy` is specified and has a valid value", () => {
+        let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes");
+        let apiCur2 = apiUrl.concat("?tag=tech&sortBy=likes");
+        mock.onGet(apiCur1).reply(200, {"posts": [{"likes": 100, "tags": ["health"]}]});
+        mock.onGet(apiCur2).reply(200, {"posts": [{"likes": 50, "tags": ["tech"]}]});
+        return request(app)
+          .get('/api/posts/health,tech/likes')
+          .expect(200);
+      });
+      it("It should respond with status code 200 with two tags if a `direction` is specified and has a valid value", () => {
+        let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes&direction=desc");
+        let apiCur2 = apiUrl.concat("?tag=tech&sortBy=likes&direction=desc");
+        mock.onGet(apiCur1).reply(200, {"posts": [{"likes": 100, "direction": "desc", "tags": ["health"]}]});
+        mock.onGet(apiCur2).reply(200, {"posts": [{"likes": 50, "direction": "desc", "tags": ["tech"]}]});
+        return request(app)
+          .get('/api/posts/health,tech/likes/desc')
+          .expect(200);
+      });
+    });
+   
+    it("It should respond with status code 200 if three `tags` parameter are specified", () => {
+      let apiCur1 = apiUrl.concat("?tag=health");
+      let apiCur2 = apiUrl.concat("?tag=tech");
+      let apiCur3 = apiUrl.concat("?tag=history");
+      mock.onGet(apiCur1).reply(200, {"posts": [{"likes": 100, "direction": "desc", "tags": ["health"]}]});
+      mock.onGet(apiCur2).reply(200, {"posts": [{"likes": 50, "direction": "desc", "tags": ["tech"]}]});
+      mock.onGet(apiCur3).reply(200, {"posts": [{"likes": 500, "direction": "desc", "tags": ["history"]}]});
+      return request(app)
+        .get('/api/posts/health,tech,history')
+        .expect(200);
     });
 
     // describe("Check correct values with one tag", () => {
