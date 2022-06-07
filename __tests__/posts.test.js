@@ -1,8 +1,12 @@
 const app = require("../src/app");
 const request = require("supertest");
-const { expect } = require('@jest/globals');
+const axios = require("axios");
+const MockAdapter = require("axios-mock-adapter");
+const mock = new MockAdapter(axios);
+const { expect } = require("@jest/globals");
 
-let noCacheHeader = {"x-apicache-bypass": true};
+const noCacheHeader = {"x-apicache-bypass": true};
+const apiUrl = "https://app.hatchways.io/api/assessment/blog/posts";
 
 describe("All routes tests", () => {
 
@@ -26,11 +30,13 @@ describe("All routes tests", () => {
   describe("GET /api/posts (Step 2)", () => {
     
     describe("Check StatusCode", () => {
+      
       it("It should respond with status code 400 if `tags` parameter is not present", (done) => {
         request(app)
           .get('/api/posts')
           .expect(400).end(done);
       });
+
       it("It should respond with status code 400 if a `sortBy` is invalid values", (done) => {
         request(app)
           .get('/api/posts/health/lik')
@@ -41,17 +47,15 @@ describe("All routes tests", () => {
           .get('/api/posts/health/likes/de')
           .expect(400).end(done);
       });
-      // it("It should respond with status code 200 if one `tags` parameter is specified", (done) => {
-      //   request(app)
-      //     .get('/api/posts/health')
-      //     .set(noCacheHeader)
-      //     .expect(200).end(done);
-      // });
-      // it("It should respond with status code 200 if one `tags` parameter is specified", (done) => {
-      //   return request(app)
-      //     .get('/api/posts/health')
-      //     .expect(200).end(done);
-      // });
+
+      it("It should respond with status code 200 if one `tags` parameter is specified", () => {
+        mock.onGet(apiUrl + "?tag=health").reply(200, {posts: {"post1": "data1"}});
+        return request(app)
+          .get('/api/posts/health')
+          .set(noCacheHeader)
+          .expect(200);
+      });
+
       // it("It should respond with status code 200 if two `tags` parameter are specified", (done) => {
       //   return request(app)
       //     .get('/api/posts/health,tech')

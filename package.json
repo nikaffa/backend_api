@@ -24,6 +24,7 @@
     "express": "^4.18.1"
   },
   "devDependencies": {
+    "axios-mock-adapter": "^1.21.1",
     "jest": "^28.1.0",
     "nodemon": "^2.0.16",
     "supertest": "^6.2.3"

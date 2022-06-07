@@ -2,7 +2,14 @@ const axios = require('axios');
 
 //Helper for fetching data
 const getData = (tag, sortBy, direction) => {
-  return axios.get(`https://app.hatchways.io/api/assessment/blog/posts?tag=${tag}&sortBy=${sortBy}&direction=${direction}`)
+  let url = `https://app.hatchways.io/api/assessment/blog/posts?tag=${tag}`;
+  if (sortBy) {
+    url += `&sortBy=${sortBy}`;
+  }
+  if (direction) {
+    url += `&direction=${direction}`;
+  }
+  return axios.get(url)
     .then(response => {
       let data = response.data.posts;
       if (data.length) {
