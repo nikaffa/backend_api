@@ -35,6 +35,3 @@ npm test
 
 #### Test coverage
 -  95.45% Stmts, 94.28% Branch, 81.25% Funcs, 95.23% Lines (Uncovered Lines: catching the errors)
-
-## Notes
-- Actual time taken for the assessment (minus the breaks): 4 days
