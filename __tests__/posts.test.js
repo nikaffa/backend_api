@@ -29,415 +29,192 @@ describe("All routes tests", () => {
   });
 
   describe("GET /api/posts (Step 2)", () => {
+    const hasTag = (post) => post.tags.includes('health');
+    const hasTags = (post) => post.tags.includes('health') || post.tags.includes('tech');
     
-    describe("Check StatusCode", () => {
+    const hasUniqueIds = (posts) => {
+      let idHash = {};
+      for (let post of posts) {
+        if (idHash[post.id]) return false;
+        else idHash[post.id] = 1;
+      }
+      return true;
+    };
+    
+    const isSortedBy = (posts, prmtr, dir) => {
+      let listOfParam = [];
+      for (let post of posts) {
+        listOfParam.push(post[prmtr]);
+      }
+      console.log('listOfParam', listOfParam);
+      if (dir === "asc") {
+        const min = listOfParam[0];
+        if (listOfParam.every((id) => id >= min)) return true;
+        else return false;
+      } else {
+        const max = listOfParam[0];
+        if (listOfParam.every((id) => id <= max)) return true;
+        else return false;
+      }
+    };
+    
+    describe("Check StatusCode 400", () => {
       
       it("It should respond with status code 400 if `tags` parameter is not present", (done) => {
         request(app)
           .get('/api/posts')
           .expect(400).end(done);
       });
-
-      it("It should respond with status code 400 if a `sortBy` is invalid values", (done) => {
+      it("It should respond with status code 400 if a `sortBy` is invalid value", (done) => {
         request(app)
           .get('/api/posts/health/lik')
           .expect(400).end(done);
       });
-      it("It should respond with status code 400 if a `direction` is invalid values", (done) => {
+      it("It should respond with status code 400 if a `direction` is invalid value", (done) => {
         request(app)
           .get('/api/posts/health/likes/de')
           .expect(400).end(done);
       });
+    });
 
-      it("It should respond with status code 200 if one `tags` parameter is specified", () => {
+    describe("Check status 200 and correct values with one tag", () => {
+      it("It should respond with status 200 and posts with unique ids and correct tag sorted by id", () => {
         let apiCur = apiUrl.concat("?tag=health");
-        mock.onGet(apiCur).reply(200, {posts: {"post1": "data1"}});
-        console.log(apiCur);
+        mock.onGet(apiCur).reply(200, {posts: [{id: 1, tags: ["health", "tech"]}, {id: 2, tags: ["health"]}]});
         return request(app)
           .get('/api/posts/health')
           .set(noCacheHeader)
-          .expect(200);
+          .then(response => {
+            const posts = JSON.parse(response.text).posts;
+ 
+            expect(response.status).toEqual(200);
+            expect(posts.every(hasTag)).toBeTruthy();
+            expect(hasUniqueIds(posts)).toBeTruthy();
+            expect(isSortedBy(posts, "id", "asc")).toBeTruthy();
+          });
       });
-      it("It should respond with status code 200 with one tag if a `sortBy` is specified and has a valid value", () => {
-        let apiCur = apiUrl.concat("?tag=health&sortBy=likes");
-        mock.onGet(apiCur).reply(200, {"posts": [{"likes": 100},{"likes": 50}]});
-        console.log(apiCur);
+      it("It should respond with status 200 and posts sorted by sortBy parameter and default direction", () => {
+        let apiCur = apiUrl.concat("?tag=health&sortBy=popularity");
+        mock.onGet(apiCur).reply(200, {posts: [{popularity: 11}, {popularity: 5}]});
         return request(app)
-          .get('/api/posts/health/likes')
+          .get('/api/posts/health/popularity')
           .set(noCacheHeader)
-          .expect(200);
+          .then(response => {
+            const posts = JSON.parse(response.text).posts;
+            expect(response.status).toEqual(200);
+            expect(isSortedBy(posts, "popularity", "asc")).toBeTruthy();
+          });
       });
-      it("It should respond with status code 200 with one tag if a `direction` is specified and has a valid value", () => {
-        let apiCur = apiUrl.concat("?tag=health&sortBy=likes&direction=desc");
-        mock.onGet(apiCur).reply(200, {"posts": [{"likes": 100},{"likes": 50}]});
-        console.log(apiCur);
+      it("It should respond with status 200 and posts sorted by sortBy parameter and asc direction", () => {
+        let apiCur = apiUrl.concat("?tag=health&sortBy=popularity&direction=asc");
+        mock.onGet(apiCur).reply(200, {posts: [{popularity: 11},{popularity: 5}]});
         return request(app)
-          .get('/api/posts/health/likes/desc')
+          .get('/api/posts/health/popularity/asc')
           .set(noCacheHeader)
-          .expect(200);
+          .then(response => {
+            const posts = JSON.parse(response.text).posts;
+            expect(response.status).toEqual(200);
+            expect(isSortedBy(posts, "popularity", "asc")).toBeTruthy();
+          });
       });
-      it("It should respond with status code 200 if two `tags` parameter are specified", () => {
+      it("It should respond with status 200 and posts sorted by sortBy parameter and desc direction", () => {
+        let apiCur = apiUrl.concat("?tag=health&sortBy=popularity&direction=desc");
+        mock.onGet(apiCur).reply(200, {posts: [{popularity: 5},{popularity: 11}]});
+        return request(app)
+          .get('/api/posts/health/popularity/desc')
+          .set(noCacheHeader)
+          .then(response => {
+            const posts = JSON.parse(response.text).posts;
+            expect(response.status).toEqual(200);
+            expect(isSortedBy(posts, "popularity", "desc")).toBeTruthy();
+          });
+      });
+    });
+
+    describe("Check status 200 and correct values with two tags", () => {
+      it.only("It should respond with status 200 and posts with unique ids and correct tags sorted by default", () => {
         let apiCur1 = apiUrl.concat("?tag=health");
         let apiCur2 = apiUrl.concat("?tag=tech");
-        mock.onGet(apiCur1).reply(200, {"posts": [{"tags": ["health"]}]});
-        mock.onGet(apiCur2).reply(200, {"posts": [{"tags": ["tech"]}]});
+        mock.onGet(apiCur1).reply(200, {posts: [{id: 11, tags: ["health"]}, {id: 11, tags: ["health"]}, {id: 22, tags: ["history", "health"]}]});
+        mock.onGet(apiCur2).reply(200, {posts: [{id: 3, tags: ["tech"]}, {id: 4, tags: ["history", "tech"]}]});
+       
         return request(app)
           .get('/api/posts/health,tech')
-          .expect(200);
+          .set(noCacheHeader)
+          .then(response => {
+            const posts = JSON.parse(response.text).posts;
+            console.log('posts', posts)
+           
+            expect(response.status).toEqual(200);
+            expect(posts.every(hasTags)).toBeTruthy();
+            expect(hasUniqueIds(posts)).toBeTruthy();
+            expect(isSortedBy(posts, "id", "asc")).toBeTruthy();
+          });
       });
-      it("It should respond with status code 200 with two tags if a `sortBy` is specified and has a valid value", () => {
+     
+      it("It should respond with status 200 and posts sorted by sortBy parameter and default direction", () => {
         let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes");
-        let apiCur2 = apiUrl.concat("?tag=tech&sortBy=likes");
-        mock.onGet(apiCur1).reply(200, {"posts": [{"likes": 100, "tags": ["health"]}]});
-        mock.onGet(apiCur2).reply(200, {"posts": [{"likes": 50, "tags": ["tech"]}]});
+        let apiCur2 = apiUrl.concat("?tag=history&sortBy=likes");
+        mock.onGet(apiCur1).reply(200, {posts: [{likes: 1, tags: ["health"]}, {likes: 22, tags: ["tech", "health"]}]});
+        mock.onGet(apiCur2).reply(200, {posts: [{likes: 3, tags: ["history"]}, {likes: 44, tags: ["history", "tech"]}]});
         return request(app)
-          .get('/api/posts/health,tech/likes')
-          .expect(200);
+          .get('/api/posts/health,history/likes')
+          .then(response => {
+            const posts = JSON.parse(response.text).posts;
+            // console.log(posts)
+            
+            expect(response.status).toEqual(200);
+            expect(isSortedBySortParameter()).toBeTruthy();
+          });
       });
-      it("It should respond with status code 200 with two tags if a `direction` is specified and has a valid value", () => {
-        let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes&direction=desc");
-        let apiCur2 = apiUrl.concat("?tag=tech&sortBy=likes&direction=desc");
-        mock.onGet(apiCur1).reply(200, {"posts": [{"likes": 100, "direction": "desc", "tags": ["health"]}]});
-        mock.onGet(apiCur2).reply(200, {"posts": [{"likes": 50, "direction": "desc", "tags": ["tech"]}]});
+      it("It should respond with status 200 and sorted (by sortBy parameter and asc direction) posts with two tags", () => {
+        let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes");
+        let apiCur2 = apiUrl.concat("?tag=history&sortBy=likes");
+        mock.onGet(apiCur1).reply(200, {posts: [{likes: 1, tags: ["health"]}, {likes: 22, tags: ["tech", "health"]}]});
+        mock.onGet(apiCur2).reply(200, {posts: [{likes: 3, tags: ["history"]}, {likes: 44, tags: ["history", "tech"]}]});
         return request(app)
-          .get('/api/posts/health,tech/likes/desc')
-          .expect(200);
+          .get('/api/posts/health,history/likes/asc')
+          .then(response => {
+            const posts = JSON.parse(response.text).posts;
+        
+            //PROMISE!!!
+            const isSortedBySortParameter = () => {
+              let listOfLikes = [];
+              for (let post of posts) {
+                listOfLikes.push(post.likes);
+              }
+              const minLikes = listOfLikes[0];
+              if (listOfLikes.every((likes) => likes >= minLikes)) return true;
+              else return false;
+            };
+            
+            expect(response.status).toEqual(200);
+            expect(isSortedBySortParameter()).toBeTruthy();
+          });
+      });
+      
+      it("It should respond with status 200 and sorted (by sortBy parameter and desc direction) posts with two tags", () => {
+        return request(app)
+          .get('/api/posts/health,history/likes/desc')
+          .then(response => {
+            const posts = JSON.parse(response.text).posts;
+
+            //PROMISE!!!
+            const isSortedBySortParameter = () => {
+              let listOfLikes = [];
+              posts.forEach((post) => {
+                listOfLikes.push(post.likes);
+              });
+              const maxLikes = listOfLikes[0];
+              if (listOfLikes.every((likes) => likes <= maxLikes)) return true;
+              else return false;
+            };
+
+            expect(response.status).toEqual(200);
+            expect(isSortedBySortParameter()).toBeTruthy();
+          });
       });
     });
-   
-    it("It should respond with status code 200 if three `tags` parameter are specified", () => {
-      let apiCur1 = apiUrl.concat("?tag=health");
-      let apiCur2 = apiUrl.concat("?tag=tech");
-      let apiCur3 = apiUrl.concat("?tag=history");
-      mock.onGet(apiCur1).reply(200, {"posts": [{"likes": 100, "direction": "desc", "tags": ["health"]}]});
-      mock.onGet(apiCur2).reply(200, {"posts": [{"likes": 50, "direction": "desc", "tags": ["tech"]}]});
-      mock.onGet(apiCur3).reply(200, {"posts": [{"likes": 500, "direction": "desc", "tags": ["history"]}]});
-      return request(app)
-        .get('/api/posts/health,tech,history')
-        .expect(200);
-    });
 
-    // describe("Check correct values with one tag", () => {
-    //   it("It should respond with posts with correct tag if the tag is specified", () => {
-    //     return request(app)
-    //       .get('/api/posts/health')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const hasTag = (post) => post.tags.includes('health');
-    //         expect(posts.every(hasTag)).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with posts with unique ids when one tag is specified", () => {
-    //     return request(app)
-    //       .get('/api/posts/health')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const hasUniqueIds = () => {
-    //           let idHash = {};
-    //           posts.forEach((post) => {
-    //             if (idHash[post.id]) return false;
-    //             else idHash[post.id] = 1;
-    //           });
-    //           return true;
-    //         };
-    //         expect(hasUniqueIds()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with by default sorted (by ids) posts with only one tag", () => {
-    //     return request(app)
-    //       .get('/api/posts/health')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedByIds = () => {
-    //           let listOfIds = [];
-    //           posts.forEach((post) => {
-    //             listOfIds.push(post.id);
-    //           });
-    //           const minId = listOfIds[0];
-    //           if (listOfIds.every((id) => id >= minId)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedByIds()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with sorted (by sortBy parameter) posts with only one tag", () => {
-    //     return request(app)
-    //       .get('/api/posts/health/popularity')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedBySortParameter = () => {
-    //           let listOfPopularities = [];
-    //           posts.forEach((post) => {
-    //             listOfPopularities.push(post.popularity);
-    //           });
-    //           const minValue = listOfPopularities[0];
-    //           if (listOfPopularities.every((value) => value >= minValue)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedBySortParameter()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with sorted (by sortBy parameter and asc direction) posts with only one tag", () => {
-    //     return request(app)
-    //       .get('/api/posts/health/popularity/asc')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedBySortParameter = () => {
-    //           let listOfPopularities = [];
-    //           posts.forEach((post) => {
-    //             listOfPopularities.push(post.popularity);
-    //           });
-    //           const minValue = listOfPopularities[0];
-    //           if (listOfPopularities.every((value) => value >= minValue)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedBySortParameter()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with sorted (by sortBy parameter and desc direction) posts with only one tag", () => {
-    //     return request(app)
-    //       .get('/api/posts/health/popularity/desc')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedBySortParameter = () => {
-    //           let listOfPopularities = [];
-    //           posts.forEach((post) => {
-    //             listOfPopularities.push(post.popularity);
-    //           });
-    //           const maxValue = listOfPopularities[0];
-    //           if (listOfPopularities.every((value) => value <= maxValue)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedBySortParameter()).toEqual(true);
-    //       });
-    //   });
-    // });
-
-    // describe("Check correct values with two tags", () => {
-    //   it("It should respond with posts with correct tags if two tags are specified", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,tech')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const hasOneOfTags = (post) => post.tags.includes('health') || post.tags.includes('tech');
-    //         expect(posts.every(hasOneOfTags)).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with posts with unique ids when two tags are specified", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,tech')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const hasUniqueIds = () => {
-    //           let idHash = {};
-    //           posts.forEach((post) => {
-    //             if (idHash[post.id]) return false;
-    //             else idHash[post.id] = 1;
-    //           });
-    //           return true;
-    //         };
-    //         expect(hasUniqueIds()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with by default sorted (by ids) posts with two tags", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,tech')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedByIds = () => {
-    //           let listOfIds = [];
-    //           posts.forEach((post) => {
-    //             listOfIds.push(post.id);
-    //           });
-    //           const minId = listOfIds[0];
-    //           if (listOfIds.every((id) => id >= minId)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedByIds()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with by default sorted (by ids) posts with two tags", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,tech')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedByIds = () => {
-    //           let listOfIds = [];
-    //           posts.forEach((post) => {
-    //             listOfIds.push(post.id);
-    //           });
-    //           const minId = listOfIds[0];
-    //           if (listOfIds.every((id) => id >= minId)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedByIds()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with sorted (by sortBy parameter) posts with two tags", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,history/likes')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedBySortParameter = () => {
-    //           let listOfLikes = [];
-    //           posts.forEach((post) => {
-    //             listOfLikes.push(post.likes);
-    //           });
-    //           const minLikes = listOfLikes[0];
-    //           if (listOfLikes.every((likes) => likes >= minLikes)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedBySortParameter()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with sorted (by sortBy parameter and asc direction) posts with two tags", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,history/likes/asc')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedBySortParameter = () => {
-    //           let listOfLikes = [];
-    //           posts.forEach((post) => {
-    //             listOfLikes.push(post.likes);
-    //           });
-    //           const minLikes = listOfLikes[0];
-    //           if (listOfLikes.every((likes) => likes >= minLikes)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedBySortParameter()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with sorted (by sortBy parameter and desc direction) posts with two tags", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,history/likes/desc')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedBySortParameter = () => {
-    //           let listOfLikes = [];
-    //           posts.forEach((post) => {
-    //             listOfLikes.push(post.likes);
-    //           });
-    //           const maxLikes = listOfLikes[0];
-    //           if (listOfLikes.every((likes) => likes <= maxLikes)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedBySortParameter()).toEqual(true);
-    //       });
-    //   });
-    // });
-
-    // describe("Check correct values with three tags", () => {
-    //   it("It should respond with posts with correct tags when three tags are specified", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,tech,history')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const hasOneOfTags = (post) => post.tags.includes('health') || post.tags.includes('tech') || post.tags.includes('history');
-    //         expect(posts.every(hasOneOfTags)).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with posts with unique ids when three tags are specified", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,tech,history')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const hasUniqueIds = () => {
-    //           let idHash = {};
-    //           posts.forEach((post) => {
-    //             if (idHash[post.id]) return false;
-    //             else idHash[post.id] = 1;
-    //           });
-    //           return true;
-    //         };
-    //         expect(hasUniqueIds()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with by default sorted (by ids) posts with three tags", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,tech,history')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedByIds = () => {
-    //           let listOfIds = [];
-    //           posts.forEach((post) => {
-    //             listOfIds.push(post.id);
-    //           });
-    //           const minId = listOfIds[0];
-    //           if (listOfIds.every((id) => id >= minId)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedByIds()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with by default sorted (by ids) posts with three tags", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,tech,history')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedByIds = () => {
-    //           let listOfIds = [];
-    //           posts.forEach((post) => {
-    //             listOfIds.push(post.id);
-    //           });
-    //           const minId = listOfIds[0];
-    //           if (listOfIds.every((id) => id >= minId)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedByIds()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with sorted (by sortBy parameter) posts with three tags", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,tech,history/likes')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedBySortParameter = () => {
-    //           let listOfLikes = [];
-    //           posts.forEach((post) => {
-    //             listOfLikes.push(post.likes);
-    //           });
-    //           const minLikes = listOfLikes[0];
-    //           if (listOfLikes.every((likes) => likes >= minLikes)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedBySortParameter()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with sorted (by sortBy parameter and asc direction) posts with three tags", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,tech,history/likes/asc')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedBySortParameter = () => {
-    //           let listOfLikes = [];
-    //           posts.forEach((post) => {
-    //             listOfLikes.push(post.likes);
-    //           });
-    //           const minLikes = listOfLikes[0];
-    //           if (listOfLikes.every((likes) => likes >= minLikes)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedBySortParameter()).toEqual(true);
-    //       });
-    //   });
-    //   it("It should respond with sorted (by sortBy parameter and desc direction) posts with three tags", () => {
-    //     return request(app)
-    //       .get('/api/posts/health,tech,history/likes/desc')
-    //       .then(response => {
-    //         const posts = JSON.parse(response.text).posts;
-    //         const isSortedBySortParameter = () => {
-    //           let listOfLikes = [];
-    //           posts.forEach((post) => {
-    //             listOfLikes.push(post.likes);
-    //           });
-    //           const maxLikes = listOfLikes[0];
-    //           if (listOfLikes.every((likes) => likes <= maxLikes)) return true;
-    //           else return false;
-    //         };
-    //         expect(isSortedBySortParameter()).toEqual(true);
-    //       });
-    //   });
-    // });
-  
   });
 });

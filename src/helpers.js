@@ -9,7 +9,6 @@ const getData = (tag, sortBy, direction) => {
   if (direction) {
     url += `&direction=${direction}`;
   }
-  console.log('url helpers', url)
   return axios.get(url)
     .then(response => {
       let data = response.data.posts;
