@@ -78,7 +78,7 @@ describe("All routes tests", () => {
     });
 
     describe("Check status 200 and correct values with one tag", () => {
-      it("It should respond with status 200 and posts with unique ids and correct tag sorted by id", () => {
+      it("It should respond with status 200 and posts with unique ids and correct tag sorted by default", () => {
         let apiCur = apiUrl.concat("?tag=health");
         mock.onGet(apiCur).reply(200, {posts: [{id: 1, tags: ["health", "tech"]}, {id: 2, tags: ["health"]}]});
         return request(app)
@@ -132,7 +132,7 @@ describe("All routes tests", () => {
     });
 
     describe("Check status 200 and correct values with two tags", () => {
-      it.only("It should respond with status 200 and posts with unique ids and correct tags sorted by default", () => {
+      it("It should respond with status 200 and posts with unique ids and correct tags sorted by default", () => {
         let apiCur1 = apiUrl.concat("?tag=health");
         let apiCur2 = apiUrl.concat("?tag=tech");
         mock.onGet(apiCur1).reply(200, {posts: [{id: 11, tags: ["health"]}, {id: 11, tags: ["health"]}, {id: 22, tags: ["history", "health"]}]});
@@ -155,63 +155,47 @@ describe("All routes tests", () => {
       it("It should respond with status 200 and posts sorted by sortBy parameter and default direction", () => {
         let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes");
         let apiCur2 = apiUrl.concat("?tag=history&sortBy=likes");
-        mock.onGet(apiCur1).reply(200, {posts: [{likes: 1, tags: ["health"]}, {likes: 22, tags: ["tech", "health"]}]});
-        mock.onGet(apiCur2).reply(200, {posts: [{likes: 3, tags: ["history"]}, {likes: 44, tags: ["history", "tech"]}]});
+        mock.onGet(apiCur1).reply(200, {posts: [{id: 11, likes: 1, tags: ["health"]}, {id: 12, likes: 22, tags: ["history", "health"]}]});
+        mock.onGet(apiCur2).reply(200, {posts: [{id: 12, likes: 22, tags: ["history", "health"]}, {id: 13, likes: 3, tags: ["history"]}, {id: 14, likes: 44, tags: ["history", "tech"]}]});
         return request(app)
           .get('/api/posts/health,history/likes')
           .then(response => {
             const posts = JSON.parse(response.text).posts;
-            // console.log(posts)
+            console.log(posts)
             
             expect(response.status).toEqual(200);
-            expect(isSortedBySortParameter()).toBeTruthy();
+            expect(isSortedBy(posts, "likes", "asc")).toBeTruthy();
           });
       });
-      it("It should respond with status 200 and sorted (by sortBy parameter and asc direction) posts with two tags", () => {
-        let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes");
-        let apiCur2 = apiUrl.concat("?tag=history&sortBy=likes");
-        mock.onGet(apiCur1).reply(200, {posts: [{likes: 1, tags: ["health"]}, {likes: 22, tags: ["tech", "health"]}]});
-        mock.onGet(apiCur2).reply(200, {posts: [{likes: 3, tags: ["history"]}, {likes: 44, tags: ["history", "tech"]}]});
+      it("It should respond with status 200 and posts sorted by sortBy parameter and asc direction", () => {
+        let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes&direction=asc");
+        let apiCur2 = apiUrl.concat("?tag=history&sortBy=likes&direction=asc");
+        mock.onGet(apiCur1).reply(200, {posts: [{id: 11, likes:44, tags: ["health"]}, {id: 12, likes: 22, tags: ["history", "health"]}]});
+        mock.onGet(apiCur2).reply(200, {posts: [{id: 12, likes: 22, tags: ["history", "health"]}, {id: 13, likes: 1, tags: ["history"]}, {id: 14, likes: 3, tags: ["history", "tech"]}]});
         return request(app)
           .get('/api/posts/health,history/likes/asc')
           .then(response => {
             const posts = JSON.parse(response.text).posts;
-        
-            //PROMISE!!!
-            const isSortedBySortParameter = () => {
-              let listOfLikes = [];
-              for (let post of posts) {
-                listOfLikes.push(post.likes);
-              }
-              const minLikes = listOfLikes[0];
-              if (listOfLikes.every((likes) => likes >= minLikes)) return true;
-              else return false;
-            };
+            console.log(posts)
             
             expect(response.status).toEqual(200);
-            expect(isSortedBySortParameter()).toBeTruthy();
+            expect(isSortedBy(posts, "likes", "asc")).toBeTruthy();
           });
       });
       
-      it("It should respond with status 200 and sorted (by sortBy parameter and desc direction) posts with two tags", () => {
+      it("It should respond with status 200 and posts sorted by sortBy parameter and desc direction", () => {
+        let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes&direction=desc");
+        let apiCur2 = apiUrl.concat("?tag=history&sortBy=likes&direction=desc");
+        mock.onGet(apiCur1).reply(200, {posts: [{id: 11, likes:4, tags: ["health"]}, {id: 12, likes: 22, tags: ["history", "health"]}]});
+        mock.onGet(apiCur2).reply(200, {posts: [{id: 12, likes: 22, tags: ["history", "health"]}, {id: 13, likes: 1, tags: ["history"]}, {id: 14, likes: 3, tags: ["history", "tech"]}]});
         return request(app)
           .get('/api/posts/health,history/likes/desc')
           .then(response => {
             const posts = JSON.parse(response.text).posts;
-
-            //PROMISE!!!
-            const isSortedBySortParameter = () => {
-              let listOfLikes = [];
-              posts.forEach((post) => {
-                listOfLikes.push(post.likes);
-              });
-              const maxLikes = listOfLikes[0];
-              if (listOfLikes.every((likes) => likes <= maxLikes)) return true;
-              else return false;
-            };
-
+            console.log(posts)
+            
             expect(response.status).toEqual(200);
-            expect(isSortedBySortParameter()).toBeTruthy();
+            expect(isSortedBy(posts, "likes", "desc")).toBeTruthy();
           });
       });
     });

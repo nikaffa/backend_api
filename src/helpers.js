@@ -9,10 +9,11 @@ const getData = (tag, sortBy, direction) => {
   if (direction) {
     url += `&direction=${direction}`;
   }
+ 
   return axios.get(url)
     .then(response => {
       let data = response.data.posts;
-      console.log('data', data)
+      console.log('1.first getdata', data)
       if (data.length) {
         return data;
       }
@@ -36,7 +37,7 @@ const getDataSorted = (data, sortBy, direction) => {
 
 //Helper for validating parameters
 const validateInputData = (tags, sortBy, direction) => {
-  const sortByValidValues = ['id', 'author', 'authorId', 'likes', 'popularity', 'reads', 'tags'];
+  const sortByValidValues = ['id', 'likes', 'popularity', 'reads'];
   const directionValidValues = ['asc', 'desc'];
 
   //checking invalid input values
