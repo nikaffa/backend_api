@@ -9,11 +9,9 @@ const getData = (tag, sortBy, direction) => {
   if (direction) {
     url += `&direction=${direction}`;
   }
- 
   return axios.get(url)
     .then(response => {
       let data = response.data.posts;
-      console.log('1.first getdata', data)
       if (data.length) {
         return data;
       }

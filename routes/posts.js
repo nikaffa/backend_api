@@ -27,7 +27,6 @@ const postsRoutes = (app) => {
         });
     } else {
     //If more than one tag specified
-    
       //1. Fetching all unsorted posts async-ly
       let arrayOfTags = tags.split(',');
       let promises = [];
@@ -38,7 +37,7 @@ const postsRoutes = (app) => {
 
       Promise.all(promises)
         .then(alldata => {
-          console.log('2.allgata after promiseall', alldata)
+
           //2.Removing duplicates
           let dataHash = {};
           alldata[0].forEach(post => {
@@ -55,11 +54,9 @@ const postsRoutes = (app) => {
           for (let postId in dataHash) {
             dataDuplicatesRemoved.push(dataHash[postId]);
           }
-          console.log('dataDuplicatesRemoved', dataDuplicatesRemoved)
 
           //4.Sorting posts
           const dataSorted = getDataSorted(dataDuplicatesRemoved, sortBy, direction);
-          console.log("dataSorted", dataSorted)
           res.status(200).send({ 'posts': dataSorted });
         })
         .catch(err => {

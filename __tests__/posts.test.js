@@ -6,32 +6,22 @@ const mock = new MockAdapter(axios);
 const { expect } = require("@jest/globals");
 
 const noCacheHeader = {"x-apicache-bypass": true};
-//const apiUrl = "https://app.hatchways.io/api/assessment/blog/posts";
 let apiUrl = "https://api.hatchways.io/assessment/blog/posts";
 
 describe("All routes tests", () => {
 
   describe("GET /api/ping (Step 1)", () => {
-  
-    it("Should respond with status code 200", (done) => {
-      request(app)
+    it("Should respond with status code 200 and body { success: true }", () => {
+      return request(app)
         .get('/api/ping')
         .set(noCacheHeader)
-        .expect(200).end(done);
-    });
-    
-    it("Should respond with body { success: true }", (done) => {
-      request(app)
-        .get('/api/ping')
-        .set(noCacheHeader)
-        .expect({ "success": true }).end(done);
+        .expect(200, { success: true });
     });
   });
 
   describe("GET /api/posts (Step 2)", () => {
-    const hasTag = (post) => post.tags.includes('health');
-    const hasTags = (post) => post.tags.includes('health') || post.tags.includes('tech');
     
+    //Test Helpers
     const hasUniqueIds = (posts) => {
       let idHash = {};
       for (let post of posts) {
@@ -46,7 +36,6 @@ describe("All routes tests", () => {
       for (let post of posts) {
         listOfParam.push(post[prmtr]);
       }
-      console.log('listOfParam', listOfParam);
       if (dir === "asc") {
         const min = listOfParam[0];
         if (listOfParam.every((id) => id >= min)) return true;
@@ -58,22 +47,22 @@ describe("All routes tests", () => {
       }
     };
     
-    describe("Check StatusCode 400", () => {
+    describe("Check StatusCode 400 when Error", () => {
       
-      it("It should respond with status code 400 if `tags` parameter is not present", (done) => {
-        request(app)
+      it("It should respond with status code 400 if `tags` parameter is not present", () => {
+        return request(app)
           .get('/api/posts')
-          .expect(400).end(done);
+          .expect(400);
       });
-      it("It should respond with status code 400 if a `sortBy` is invalid value", (done) => {
-        request(app)
+      it("It should respond with status code 400 if a `sortBy` is invalid value", () => {
+        return request(app)
           .get('/api/posts/health/lik')
-          .expect(400).end(done);
+          .expect(400);
       });
-      it("It should respond with status code 400 if a `direction` is invalid value", (done) => {
-        request(app)
+      it("It should respond with status code 400 if a `direction` is invalid value", () => {
+        return request(app)
           .get('/api/posts/health/likes/de')
-          .expect(400).end(done);
+          .expect(400);
       });
     });
 
@@ -86,6 +75,7 @@ describe("All routes tests", () => {
           .set(noCacheHeader)
           .then(response => {
             const posts = JSON.parse(response.text).posts;
+            const hasTag = (post) => post.tags.includes('health');
  
             expect(response.status).toEqual(200);
             expect(posts.every(hasTag)).toBeTruthy();
@@ -143,7 +133,7 @@ describe("All routes tests", () => {
           .set(noCacheHeader)
           .then(response => {
             const posts = JSON.parse(response.text).posts;
-            console.log('posts', posts)
+            const hasTags = (post) => post.tags.includes('health') || post.tags.includes('tech');
            
             expect(response.status).toEqual(200);
             expect(posts.every(hasTags)).toBeTruthy();
@@ -151,7 +141,6 @@ describe("All routes tests", () => {
             expect(isSortedBy(posts, "id", "asc")).toBeTruthy();
           });
       });
-     
       it("It should respond with status 200 and posts sorted by sortBy parameter and default direction", () => {
         let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes");
         let apiCur2 = apiUrl.concat("?tag=history&sortBy=likes");
@@ -161,7 +150,6 @@ describe("All routes tests", () => {
           .get('/api/posts/health,history/likes')
           .then(response => {
             const posts = JSON.parse(response.text).posts;
-            console.log(posts)
             
             expect(response.status).toEqual(200);
             expect(isSortedBy(posts, "likes", "asc")).toBeTruthy();
@@ -176,13 +164,11 @@ describe("All routes tests", () => {
           .get('/api/posts/health,history/likes/asc')
           .then(response => {
             const posts = JSON.parse(response.text).posts;
-            console.log(posts)
             
             expect(response.status).toEqual(200);
             expect(isSortedBy(posts, "likes", "asc")).toBeTruthy();
           });
       });
-      
       it("It should respond with status 200 and posts sorted by sortBy parameter and desc direction", () => {
         let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes&direction=desc");
         let apiCur2 = apiUrl.concat("?tag=history&sortBy=likes&direction=desc");
@@ -192,7 +178,6 @@ describe("All routes tests", () => {
           .get('/api/posts/health,history/likes/desc')
           .then(response => {
             const posts = JSON.parse(response.text).posts;
-            console.log(posts)
             
             expect(response.status).toEqual(200);
             expect(isSortedBy(posts, "likes", "desc")).toBeTruthy();
