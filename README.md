@@ -1,5 +1,5 @@
-# Backend Assessment - Blog Posts
-- A simple backend JSON API built in Javascript with Node v15/Express and tested by Jest
+# Backend API Assessment
+- A simple backend JSON API built in Javascript with Node/Express and tested by Jest
 
 ## Dependencies
 - axios
@@ -33,5 +33,5 @@ npm test
 - Axios api calls were mocking in tests
 - Jest generates coverage report by default
 
-#### Test coverage
--  95.45% Stmts, 94.28% Branch, 81.25% Funcs, 95.23% Lines (Uncovered Lines: catching the errors)
+#### Unit Test coverage
+-  95.45% Stmts, 94.28% Branch, 81.25% Funcs, 95.23% Lines
