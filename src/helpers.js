@@ -1,8 +1,10 @@
 const axios = require('axios');
+require('dotenv').config();
 
 //Helper for fetching data
 const getData = (tag, sortBy, direction) => {
-  let url = `https://api.hatchways.io/assessment/blog/posts?tag=${tag}`;
+  const apiUrl = process.env.URL;
+  let url = `${apiUrl}?tag=${tag}`;
   if (sortBy) {
     url += `&sortBy=${sortBy}`;
   }
@@ -11,7 +13,7 @@ const getData = (tag, sortBy, direction) => {
   }
   return axios.get(url)
     .then(response => {
-      let data = response.data.posts;
+      const data = response.data.posts;
       if (data.length) {
         return data;
       }

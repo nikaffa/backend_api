@@ -4,9 +4,10 @@ const axios = require("axios");
 const MockAdapter = require("axios-mock-adapter");
 const mock = new MockAdapter(axios);
 const { expect } = require("@jest/globals");
+require('dotenv').config();
 
 const noCacheHeader = {"x-apicache-bypass": true};
-let apiUrl = "https://api.hatchways.io/assessment/blog/posts";
+const apiUrl = process.env.URL;
 
 describe("All routes tests", () => {
 
@@ -23,7 +24,7 @@ describe("All routes tests", () => {
     
     //Test Helpers
     const hasUniqueIds = (posts) => {
-      let idHash = {};
+      const idHash = {};
       for (let post of posts) {
         if (idHash[post.id]) return false;
         else idHash[post.id] = 1;
@@ -32,7 +33,7 @@ describe("All routes tests", () => {
     };
     
     const isSortedBy = (posts, prmtr, dir) => {
-      let listOfParam = [];
+      const listOfParam = [];
       for (let post of posts) {
         listOfParam.push(post[prmtr]);
       }
@@ -68,7 +69,7 @@ describe("All routes tests", () => {
 
     describe("Check status 200 and correct values with one tag", () => {
       it("It should respond with status 200 and posts with unique ids and correct tag sorted by default", () => {
-        let apiCur = apiUrl.concat("?tag=health");
+        const apiCur = apiUrl.concat("?tag=health");
         mock.onGet(apiCur).reply(200, {posts: [{id: 1, tags: ["health", "tech"]}, {id: 2, tags: ["health"]}]});
         return request(app)
           .get('/api/posts/health')
@@ -84,7 +85,7 @@ describe("All routes tests", () => {
           });
       });
       it("It should respond with status 200 and posts sorted by sortBy parameter and default direction", () => {
-        let apiCur = apiUrl.concat("?tag=health&sortBy=popularity");
+        const apiCur = apiUrl.concat("?tag=health&sortBy=popularity");
         mock.onGet(apiCur).reply(200, {posts: [{popularity: 11}, {popularity: 5}]});
         return request(app)
           .get('/api/posts/health/popularity')
@@ -96,7 +97,7 @@ describe("All routes tests", () => {
           });
       });
       it("It should respond with status 200 and posts sorted by sortBy parameter and asc direction", () => {
-        let apiCur = apiUrl.concat("?tag=health&sortBy=popularity&direction=asc");
+        const apiCur = apiUrl.concat("?tag=health&sortBy=popularity&direction=asc");
         mock.onGet(apiCur).reply(200, {posts: [{popularity: 11},{popularity: 5}]});
         return request(app)
           .get('/api/posts/health/popularity/asc')
@@ -108,7 +109,7 @@ describe("All routes tests", () => {
           });
       });
       it("It should respond with status 200 and posts sorted by sortBy parameter and desc direction", () => {
-        let apiCur = apiUrl.concat("?tag=health&sortBy=popularity&direction=desc");
+        const apiCur = apiUrl.concat("?tag=health&sortBy=popularity&direction=desc");
         mock.onGet(apiCur).reply(200, {posts: [{popularity: 5},{popularity: 11}]});
         return request(app)
           .get('/api/posts/health/popularity/desc')
@@ -123,8 +124,8 @@ describe("All routes tests", () => {
 
     describe("Check status 200 and correct values with two tags", () => {
       it("It should respond with status 200 and posts with unique ids and correct tags sorted by default", () => {
-        let apiCur1 = apiUrl.concat("?tag=health");
-        let apiCur2 = apiUrl.concat("?tag=tech");
+        const apiCur1 = apiUrl.concat("?tag=health");
+        const apiCur2 = apiUrl.concat("?tag=tech");
         mock.onGet(apiCur1).reply(200, {posts: [{id: 11, tags: ["health"]}, {id: 11, tags: ["health"]}, {id: 22, tags: ["history", "health"]}]});
         mock.onGet(apiCur2).reply(200, {posts: [{id: 3, tags: ["tech"]}, {id: 4, tags: ["history", "tech"]}]});
        
@@ -142,8 +143,8 @@ describe("All routes tests", () => {
           });
       });
       it("It should respond with status 200 and posts sorted by sortBy parameter and default direction", () => {
-        let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes");
-        let apiCur2 = apiUrl.concat("?tag=history&sortBy=likes");
+        const apiCur1 = apiUrl.concat("?tag=health&sortBy=likes");
+        const apiCur2 = apiUrl.concat("?tag=history&sortBy=likes");
         mock.onGet(apiCur1).reply(200, {posts: [{id: 11, likes: 1, tags: ["health"]}, {id: 12, likes: 22, tags: ["history", "health"]}]});
         mock.onGet(apiCur2).reply(200, {posts: [{id: 12, likes: 22, tags: ["history", "health"]}, {id: 13, likes: 3, tags: ["history"]}, {id: 14, likes: 44, tags: ["history", "tech"]}]});
         return request(app)
@@ -156,8 +157,8 @@ describe("All routes tests", () => {
           });
       });
       it("It should respond with status 200 and posts sorted by sortBy parameter and asc direction", () => {
-        let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes&direction=asc");
-        let apiCur2 = apiUrl.concat("?tag=history&sortBy=likes&direction=asc");
+        const apiCur1 = apiUrl.concat("?tag=health&sortBy=likes&direction=asc");
+        const apiCur2 = apiUrl.concat("?tag=history&sortBy=likes&direction=asc");
         mock.onGet(apiCur1).reply(200, {posts: [{id: 11, likes:44, tags: ["health"]}, {id: 12, likes: 22, tags: ["history", "health"]}]});
         mock.onGet(apiCur2).reply(200, {posts: [{id: 12, likes: 22, tags: ["history", "health"]}, {id: 13, likes: 1, tags: ["history"]}, {id: 14, likes: 3, tags: ["history", "tech"]}]});
         return request(app)
@@ -170,8 +171,8 @@ describe("All routes tests", () => {
           });
       });
       it("It should respond with status 200 and posts sorted by sortBy parameter and desc direction", () => {
-        let apiCur1 = apiUrl.concat("?tag=health&sortBy=likes&direction=desc");
-        let apiCur2 = apiUrl.concat("?tag=history&sortBy=likes&direction=desc");
+        const apiCur1 = apiUrl.concat("?tag=health&sortBy=likes&direction=desc");
+        const apiCur2 = apiUrl.concat("?tag=history&sortBy=likes&direction=desc");
         mock.onGet(apiCur1).reply(200, {posts: [{id: 11, likes:4, tags: ["health"]}, {id: 12, likes: 22, tags: ["history", "health"]}]});
         mock.onGet(apiCur2).reply(200, {posts: [{id: 12, likes: 22, tags: ["history", "health"]}, {id: 13, likes: 1, tags: ["history"]}, {id: 14, likes: 3, tags: ["history", "tech"]}]});
         return request(app)

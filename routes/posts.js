@@ -8,7 +8,6 @@ const postsRoutes = (app) => {
   // GET all posts
   app.get('/api/posts/:tags?/:sortBy?/:direction?', (req, res) => {
     const { tags, sortBy,  direction } = req.params;
-
     //Validating parameters
     const validationError = validateInputData(tags, sortBy, direction);
     if (validationError) {
@@ -28,8 +27,8 @@ const postsRoutes = (app) => {
     } else {
     //If more than one tag specified
       //1. Fetching all unsorted posts async-ly
-      let arrayOfTags = tags.split(',');
-      let promises = [];
+      const arrayOfTags = tags.split(',');
+      const promises = [];
 
       arrayOfTags.forEach((tag) => {
         promises.push(getData(tag, sortBy, direction));
@@ -39,18 +38,15 @@ const postsRoutes = (app) => {
         .then(alldata => {
 
           //2.Removing duplicates
-          let dataHash = {};
-          alldata[0].forEach(post => {
-            dataHash[post.id] = post;
-          });
-          for (let i = 1; i < alldata.length; i++) {
+          const dataHash = {};
+          for (let i = 0; i < alldata.length; i++) {
             alldata[i].forEach(post => {
               dataHash[post.id] = post;
             });
           }
 
           //3.Converting hash to array
-          let dataDuplicatesRemoved = [];
+          const dataDuplicatesRemoved = [];
           for (let postId in dataHash) {
             dataDuplicatesRemoved.push(dataHash[postId]);
           }
